@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
 class XRayModel {
@@ -27,7 +30,15 @@ class XRayModel {
       time = DateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(mapData["time_tag"]);
       satellite = mapData["satellite"].toString();
       energy = mapData["energy"].toString();
-      flux = mapData["flux"];
+      if (mapData["flux"] != null) {
+        flux = (mapData["flux"] ?? 0);
+        if(flux != 0) {
+
+          int count = int.parse(flux.toStringAsExponential().split('e').toList()[1]) * -1;
+          flux = (9 - count) + flux * pow(10, count - 1);
+        }
+
+      }
     } catch (e) {
       //print('111111111111111111111111111111111 xray fromMap e $e');
     }

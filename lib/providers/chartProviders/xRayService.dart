@@ -1,7 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:intl/intl.dart';
-
+import 'dart:math';
 import '../../helpers/apiHelper.dart';
 import '../../models/charts/xRayModel.dart';
 
@@ -77,8 +78,17 @@ class XrayService extends ChangeNotifier {
         _data17LongChartData,
         _data17ShortChartData,
       ],
+      minY: 0,
+      maxY: 7,
       // minX: _mh
     );
+  }
+
+  double getRealValueForTooltip(double value) {
+    int exponent = 9 - value.toInt() -1;
+    double realValue = value - value.toInt();
+    realValue = realValue * pow(10, -exponent);
+    return realValue;
   }
 
   LineTouchData _xrayTouchData() {
@@ -163,25 +173,25 @@ class XrayService extends ChangeNotifier {
               }
               return [
                 LineTooltipItem(
-                  '16 Long: $xPLevel ${touchedBarSpots[0].y.toStringAsExponential(2)}',
+                  '16 Long: $xPLevel ${getRealValueForTooltip(touchedBarSpots[0].y).toStringAsExponential(2)}',
                   const TextStyle(
                     color: Colors.red,
                   ),
                 ),
                 LineTooltipItem(
-                  '16 Short: ${touchedBarSpots[1].y.toStringAsExponential(2)}',
+                  '16 Short: ${getRealValueForTooltip(touchedBarSpots[1].y).toStringAsExponential(2)}',
                   const TextStyle(
                     color: Colors.blue,
                   ),
                 ),
                 LineTooltipItem(
-                  '17 Long: $xSLevel ${touchedBarSpots[2].y.toStringAsExponential(2)}',
+                  '17 Long: $xSLevel ${getRealValueForTooltip(touchedBarSpots[2].y).toStringAsExponential(2)}',
                   const TextStyle(
                     color: Colors.orange,
                   ),
                 ),
                 LineTooltipItem(
-                  '17 Short: ${touchedBarSpots[3].y.toStringAsExponential(2)} \n',
+                  '17 Short: ${getRealValueForTooltip(touchedBarSpots[3].y).toStringAsExponential(2)} \n',
                   const TextStyle(
                     color: Colors.purple,
                   ),
@@ -211,7 +221,36 @@ class XrayService extends ChangeNotifier {
           ),
         ),
         rightTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
+          sideTitles: SideTitles(
+            showTitles: true,
+            interval: 0.5,
+            getTitlesWidget: (value, meta) {
+              String text = '';
+              // return Text('XRay Flare Class');
+              switch (value.toString()) {
+                case '1.5':
+                  text = 'A';
+                  break;
+                case '2.5':
+                  text = 'B';
+                  break;
+                case '3.5':
+                  text = 'C';
+                  break;
+                case '4.5':
+                  text = 'M';
+                  break;
+                case '5.5':
+                  text = 'X';
+                  break;
+              }
+
+              return Container(
+                padding: const EdgeInsets.only(left: 5),
+                child: Text(text, style: const TextStyle(fontSize: 10),),
+              );
+            },
+          ),
         ),
         topTitles: AxisTitles(
           sideTitles: SideTitles(showTitles: false),
@@ -225,20 +264,19 @@ class XrayService extends ChangeNotifier {
             sideTitles: SideTitles(
               getTitlesWidget: _xrayLeftTitleWidgets,
               showTitles: true,
-              interval: 0.0001,
+              interval: 1,
               reservedSize: 30,
             )),
       );
 
   Widget _xrayLeftTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
-      color: Colors.blueGrey,
-      fontWeight: FontWeight.bold,
-      fontSize: 12,
-    );
     String text = value.toStringAsExponential(0).toString();
 
-    return Text(text, style: style, textAlign: TextAlign.center);
+    int exponent = value.toInt() - 9;
+    return Math.tex(
+      '10^{$exponent}',
+      textStyle: const TextStyle(fontSize: 11, color: Colors.white),
+    );
   }
 
   LineChartBarData get _data16LongChartData => LineChartBarData(
@@ -302,7 +340,7 @@ class XrayService extends ChangeNotifier {
   }
 
   FlGridData get _gridData => FlGridData(
-      show: true, drawVerticalLine: false, drawHorizontalLine: false);
+      show: true, drawVerticalLine: false, drawHorizontalLine: true);
 
   FlBorderData get _borderData => FlBorderData(
         show: true,
