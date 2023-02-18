@@ -119,14 +119,14 @@ class XrayService extends ChangeNotifier {
             getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
               var xPLevel = '-';
               var xSLevel = '-';
-              String xPLast = touchedBarSpots[0]
-                  .y
+              String xPLast = getRealValueForTooltip(touchedBarSpots[0]
+                  .y)
                   .toStringAsExponential(2)
                   .characters
                   .takeLast(1)
                   .toString();
-              String xSLast = touchedBarSpots[2]
-                  .y
+              String xSLast = getRealValueForTooltip(touchedBarSpots[2]
+                  .y)
                   .toStringAsExponential(2)
                   .characters
                   .takeLast(1)
