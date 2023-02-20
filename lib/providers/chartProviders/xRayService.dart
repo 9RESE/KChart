@@ -219,7 +219,7 @@ class XrayService extends ChangeNotifier {
           sideTitles: SideTitles(
             showTitles: true,
             reservedSize: 40,
-            interval: (_data17Long.last.x - _data17Long.first.x) / 6 ,//11000000, //3600 * 1000 * 12,
+            interval: 3600000, //(_data17Long.last.x - _data17Long.first.x) / 6 ,//11000000, //3600 * 1000 * 12,
             getTitlesWidget: _bottomTitleWidgets,
           ),
         ),
@@ -326,17 +326,18 @@ class XrayService extends ChangeNotifier {
       fontSize: 12,
     );
 
-    double step = (_data17Long.last.x - _data17Long.first.x) / 6;
-    int index = ((value - _data17Long.first.x) / step).floor();
+    double step = (meta.max - meta.min) / 6;
+    int index = ((value - meta.min) / step).floor();
+
     String labelText = "";
     if(index % 3 == 0 && index != tickIndex) {
       tickIndex = index;
-      int value = (_data17Long.first.x + step * tickIndex).toInt();
+      int value = (meta.min + step * tickIndex).toInt();
       labelText = "${DateFormat("MMM d").format(DateTime.fromMillisecondsSinceEpoch(value.toInt()))}\n${DateFormat.Hm().format(DateTime.fromMillisecondsSinceEpoch(value.toInt()))}";
     }
     else if(tickIndex != index){
       tickIndex = index;
-      int value = (_data17Long.first.x + step * tickIndex).toInt();
+      int value = (meta.min + step * tickIndex).toInt();
       labelText = "${DateFormat.Hm().format(DateTime.fromMillisecondsSinceEpoch(value.toInt()))}\n";
     }
     else {
