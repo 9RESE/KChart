@@ -18,6 +18,8 @@ class XrayService extends ChangeNotifier {
 
   bool loading = true;
 
+  int tickIndex = -1;
+
   // @override
   // void dispose() {
   // _goes16Series = [];
@@ -70,6 +72,7 @@ class XrayService extends ChangeNotifier {
       showingTooltipIndicators: _xrayIndicators,
       lineTouchData: _xrayTouchData(),
       gridData: _gridData,
+      // titlesData: _xrayTitlesData,
       titlesData: _xrayTitlesData,
       borderData: _borderData,
       lineBarsData: [
@@ -215,8 +218,8 @@ class XrayService extends ChangeNotifier {
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 22,
-            interval: 11000000, //3600 * 1000 * 12,
+            reservedSize: 40,
+            interval: (_data17Long.last.x - _data17Long.first.x) / 6 ,//11000000, //3600 * 1000 * 12,
             getTitlesWidget: _bottomTitleWidgets,
           ),
         ),
@@ -322,20 +325,43 @@ class XrayService extends ChangeNotifier {
       color: Colors.blueGrey,
       fontSize: 12,
     );
+
+    double step = (_data17Long.last.x - _data17Long.first.x) / 6;
+    int index = ((value - _data17Long.first.x) / step).floor();
+    String labelText = "";
+    if(index % 3 == 0 && index != tickIndex) {
+      tickIndex = index;
+      int value = (_data17Long.first.x + step * tickIndex).toInt();
+      labelText = "${DateFormat("MMM d").format(DateTime.fromMillisecondsSinceEpoch(value.toInt()))}\n${DateFormat.Hm().format(DateTime.fromMillisecondsSinceEpoch(value.toInt()))}";
+    }
+    else if(tickIndex != index){
+      tickIndex = index;
+      int value = (_data17Long.first.x + step * tickIndex).toInt();
+      labelText = "${DateFormat.Hm().format(DateTime.fromMillisecondsSinceEpoch(value.toInt()))}\n";
+    }
+    else {
+      labelText = "";
+    }
+
     Widget text = Text(
-        DateFormat.Md()
-            .add_H()
-            .format(DateTime.fromMillisecondsSinceEpoch(value.toInt())),
+        // DateFormat.Md()
+        //     .add_H()
+        //     .format(DateTime.fromMillisecondsSinceEpoch(value.toInt())),
+      labelText,
         style: style);
 
     if (value >= _data16Short.last.x || value <= _data16Short.first.x) {
       text = const Text("");
     }
 
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      space: 10,
-      child: text,
+    // return SideTitleWidget(
+    //   axisSide: meta.axisSide,
+    //   space: 10,
+    //   child: text,
+    // );
+    return Container(
+      padding: const EdgeInsets.only(left: 0, top: 10),
+      child: Text(labelText, style: const TextStyle(fontSize: 10),),
     );
   }
 
